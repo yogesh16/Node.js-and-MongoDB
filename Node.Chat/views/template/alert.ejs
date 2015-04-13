@@ -1,0 +1,10 @@
+<% if(msg){
+        switch (msg.type){
+case 0: %>   <div class="alert alert-danger col-sm-12"> <%= msg.message %> </div>
+<%   break;
+case 1: %> <div class="alert alert-warning col-sm-12"> <%= msg.message %> </div>
+<%   break;
+case 2: %> <div class="alert alert-success col-sm-12"> <%= msg.message %> </div>
+<%    break;
+}
+} %>

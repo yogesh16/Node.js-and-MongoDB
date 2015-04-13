@@ -1,0 +1,13 @@
+<% include ./template/header.ejs %>
+<div class="container">
+
+    <h4>Welcome to Node.Chat Demo</h4>
+
+    <% if(session.isLoggedIn){ %>
+        <p> You don't have any new notification...!</p>
+    <% } else{ %>
+       Be a part of Node.Chat, <a href="/login">Click here</a> to join now.
+    <% } %>
+
+</div>
+<% include ./template/footer.ejs %>

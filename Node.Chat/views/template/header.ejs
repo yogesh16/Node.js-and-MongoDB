@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='../../stylesheets/bootstrap.min.css' />
+    <link rel='stylesheet' href='../../stylesheets/jquery-ui.css' />
+    <link rel='stylesheet' href='../../stylesheets/bootstrapValidator.min.css' />
+    <link rel='stylesheet' href='../../stylesheets/style.css' />
+
+    <script type="application/javascript" src="../../javascripts/jquery.min.js"></script>
+    <script type="application/javascript" src="../../javascripts/jquery-ui.min.js"></script>
+    <script type="application/javascript" src="../../javascripts/bootstrap.min.js"></script>
+    <script type="application/javascript" src="../../javascripts/bootstrapValidator.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Node.Chat</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li <% if(url == ""){ %> class="active" <% } %> ><a href="/">Home</a></li>
+                <% if(session.isLoggedIn){ %>
+                    <li <% if(url == "/add"){ %> class="active" <% } %> ><a href="/add">Add Friend</a></li>
+                    <li <% if(url == "/chat"){ %> class="active" <% } %> ><a href="/chat">Chat</a></li>
+                <li <% if(url == "/logout"){ %> class="active" <% } %> ><a href="/login/logout">Logout</a></li>
+                <% } else { %>
+                    <li <% if(url == "/login"){ %> class="active" <% } %> ><a href="/login">Login</a></li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>

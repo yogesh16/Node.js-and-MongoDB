@@ -1,0 +1,185 @@
+<% include ./template/header.ejs %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-comment"></span> <span id="chatUsername">Chat</span>
+
+                    </div>
+                    <div class="panel-body">
+                        <ul class="chat" id="chatDiv">
+                            <!--<li class="left clearfix">
+                                <span class="chat-img pull-left">
+                                     <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle"/>
+                                </span>
+
+                                <div class="chat-body clearfix">
+                                    <div class="header">
+                                        <strong class="primary-font">Jack Sparrow</strong>
+                                        <small class="pull-right text-muted">
+                                            <span class="glyphicon glyphicon-time"></span>12 mins ago
+                                        </small>
+                                    </div>
+                                    <p>
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum
+                                        ornare
+                                        dolor, quis ullamcorper ligula sodales.
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="right clearfix">
+                                <span class="chat-img pull-right">
+                                     <img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle"/>
+                                 </span>
+
+                                <div class="chat-body clearfix">
+                                    <div class="header">
+                                        <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>15 mins
+                                            ago
+                                        </small>
+                                        <strong class="pull-right primary-font">Bhaumik Patel</strong>
+                                    </div>
+                                    <p>
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum
+                                        ornare
+                                        dolor, quis ullamcorper ligula sodales.
+                                    </p>
+                                </div>
+                            </li>-->
+                        </ul>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="input-group">
+                            <input id="btn-input" type="text" class="form-control input-sm"
+                                   placeholder="Type your message here..."/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-warning btn-sm" id="btn-chat">
+                                    Send
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-user"></span> Friends
+                    </div>
+                    <div class="panel-body">
+                        <ul class="chat">
+                            <%
+                                if(users){
+                                    for(var i=0; i<users.length; i++){ %>
+
+                                        <li class="left clearfix">
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <span class="chat-img pull-left">
+                                                             <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle"/>
+                                                        </span>
+                                                    </td>
+                                                    <td valign=""><a href="#"><span class="username" username="<%= users[i].username %>"><%= users[i].username %></span></a></td>
+                                                </tr>
+                                            </table>
+                                        </li>
+
+                                 <%   }
+                                }
+                            %>
+
+                        </ul>
+                    </div>
+                    <div class="panel-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="http://localhost/socket.io/socket.io.js"></script>
+<script>
+    var socket = io.connect('http://localhost');
+    var fromUser = "<%= session.username %>";
+    var toUser = "";
+    socket.on('chat',function(data){
+        console.log(data);
+        $('#chatDiv').append(getChatHTML(data,false));
+    });
+
+    socket.on('history',function(data){
+        //console.log(data);
+        for(var i=0; i<data.length; i++){
+            if(data[i].fromUser == fromUser){
+                $('#chatDiv').append(getChatHTML({from:data[i].fromUser,msg:data[i].msg},true));
+            }
+            else{
+                $('#chatDiv').append(getChatHTML({from:data[i].fromUser,msg:data[i].msg},false));
+            }
+        }
+    });
+
+    $('#btn-chat').click(function(){
+        if(toUser!="") {
+            sendMsg();
+        }
+        else{
+            alert("Please select a user");
+        }
+    });
+
+    $('#btn-input').keydown(function(e){
+        $('#btn-input').attr("style","border:0.5px solid #66AFE9");
+        if(e.keyCode === 13 && e.shiftKey===false){
+            sendMsg();
+        }
+    });
+
+    function sendMsg(){
+        if($('#btn-input').val() == ""){
+            $('#btn-input').attr("style","border:1px solid red");
+            return;
+        }
+        socket.emit('chat', {from: fromUser,to:toUser, msg: $("#btn-input").val()});
+        $('#chatDiv').append(getChatHTML({from:fromUser,msg:$('#btn-input').val()},true));
+        $('#btn-input').val("");
+    }
+
+    $('.username').click(function(e){
+       toUser = $(this).html();
+        $('#chatUsername').html(toUser);
+        socket.emit('getHistory',{fromUser:fromUser,toUser:toUser});
+    });
+
+    function getChatHTML(data,isMe){
+        var html = "";
+        if(isMe){
+                html = '<li class="right clearfix">' +
+                    '<span class="chat-img pull-right"><img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle"/></span>' +
+                    '<div class="chat-body clearfix">' +
+                    ' <div class="header">' +
+                    '<small class=" text-muted"><span class="glyphicon glyphicon-time"></span>15 mins ago</small><strong class="pull-right primary-font">'+data.from+'</strong>' +
+                    '</div>' +
+                    '<p>'+data.msg+'</p>' +
+                    '</div>' +
+                    '</li>';
+        }
+        else{
+             html = '<li class="right clearfix">' +
+                    '<span class="chat-img pull-left"><img src="http://placehold.it/50/FA6F57/fff&text=U" alt="User Avatar" class="img-circle"/></span>' +
+                    '<div class="chat-body clearfix">' +
+                    ' <div class="header">' +
+                    '<strong class="primary-font">'+ data.from +'</strong><small class="pull-right text-muted"><span class="glyphicon glyphicon-time "></span>15 mins ago</small>' +
+                    '</div>' +
+                    '<p>'+ data.msg +'</p>' +
+                    '</div>' +
+                    '</li>';
+        }
+        return html;
+    }
+
+</script>
+<% include ./template/footer.ejs %>
